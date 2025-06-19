@@ -1,7 +1,9 @@
 package br.com.techsync.controller;
 
 import br.com.techsync.models.Usuario;
+import br.com.techsync.service.LogService;
 import br.com.techsync.service.UsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private LogService logService;
 
     // Criar um novo usuário
     @PostMapping
@@ -58,12 +63,15 @@ public class UsuarioController {
 
     // Fazer login
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String senha) {
+    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String senha,  HttpServletRequest request) {
         String token = usuarioService.loginComJwt(email, senha);
+        String ip = request.getRemoteAddr();
 
         if (token != null) {
+            logService.registrarLogin(email, ip, true, null);
             return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
         } else {
+            logService.registrarLogin(email, ip, false, "Email ou senha inválidos.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou senha inválidos.");
         }
     }

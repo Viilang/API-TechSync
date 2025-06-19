@@ -1,1 +1,6 @@
 data_hora,usuario,ip,resultado,motivo
+2025-06-18T20:42:46.5277046,victorlang@gmail.com,0:0:0:0:0:0:0:1,SUCESSO,
+2025-06-18T20:48:22.4959399,victorlang@gmail.com,0:0:0:0:0:0:0:1,SUCESSO,
+2025-06-18T20:53:34.0807418,matheuslaborde@gmail.com,0:0:0:0:0:0:0:1,FALHA,Email ou senha inválidos.
+2025-06-18T20:55:06.3416772,matheuslaborde@gmail.com,0:0:0:0:0:0:0:1,SUCESSO,
+2025-06-18T21:37:38.4295616,matheuslaborde@gmail.com,0:0:0:0:0:0:0:1,SUCESSO,
