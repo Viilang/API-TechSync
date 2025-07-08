@@ -1,5 +1,7 @@
 package br.com.techsync.controller;
 
+import br.com.techsync.dto.LoginResponse;
+import br.com.techsync.dto.LoginRequest;
 import br.com.techsync.models.Usuario;
 import br.com.techsync.service.LogService;
 import br.com.techsync.service.UsuarioService;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map; // Importe Map para respostas de erro JSON
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -30,9 +33,23 @@ public class UsuarioController {
 
     // Editar um usuário
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> editarUsuario(@PathVariable int id, @RequestBody Usuario usuario) {
-        Usuario usuarioEditado = usuarioService.editarUsuario(id, usuario);
-        return usuarioEditado != null ? ResponseEntity.ok(usuarioEditado) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> editarUsuario(@PathVariable int id, @RequestBody Usuario usuario) {
+        try {
+            Usuario usuarioEditado = usuarioService.editarUsuario(id, usuario);
+            if (usuarioEditado != null) {
+                return ResponseEntity.ok(usuarioEditado); // Retorna 200 OK com o usuário atualizado
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Usuário não encontrado."));
+            }
+        } catch (IllegalArgumentException e) {
+            // Pode ser por email duplicado, CPF duplicado, ou outra validação do serviço
+            Map<String, String> errorResponse = Map.of("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse); // 400 Bad Request
+        } catch (Exception e) {
+            Map<String, String> errorResponse = Map.of("error", "Ocorreu um erro interno ao atualizar o usuário.");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     // Listar todos os usuários
@@ -42,7 +59,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarios);
     }
 
-    // Listar um único usuário por ID\
+    // Listar um único usuário por ID
     @GetMapping ("/{id}")
     public ResponseEntity<Usuario> buscarUsuarioID(@PathVariable int id){
         Usuario usuario = usuarioService.buscarUsuarioId(id);
@@ -63,18 +80,28 @@ public class UsuarioController {
 
     // Fazer login
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String senha,  HttpServletRequest request) {
-        String token = usuarioService.loginComJwt(email, senha);
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) { // <-- Tipo de retorno alterado para LoginResponse
+        String token = usuarioService.loginComJwt(loginRequest.getEmail(), loginRequest.getSenha());
         String ip = request.getRemoteAddr();
 
         if (token != null) {
-            logService.registrarLogin(email, ip, true, null);
-            return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
+            // Buscando o usuário para retornar o objeto completo, não apenas o token
+            Usuario usuarioAutenticado = usuarioService.buscarUsuarioPorEmail(loginRequest.getEmail());
+            logService.registrarLogin(loginRequest.getEmail(), ip, true, null);
+
+            // Cria o objeto LoginResponse
+            LoginResponse responseBody = new LoginResponse(token, usuarioAutenticado);
+            return ResponseEntity.ok().body(responseBody); // Spring serializará para JSON automaticamente
         } else {
-            logService.registrarLogin(email, ip, false, "Email ou senha inválidos.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou senha inválidos.");
+            logService.registrarLogin(loginRequest.getEmail(), ip, false, "Email ou senha inválidos.");
+            // Para erros, você pode retornar um ResponseEntity<Map<String, String>> ou um DTO de erro,
+            // mas aqui manteremos a consistência com o que você já tinha para erros, retornando um JSON string
+            // Mas, para ser consistente com o ResponseEntity<LoginResponse>, o ideal seria ter um ResponseEntity<ErrorResponse>
+            // Por simplicidade, vamos retornar um erro HTTP BAD_REQUEST ou UNAUTHORIZED sem um corpo LoginResponse
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // Retorna null no corpo se o tipo for LoginResponse, ou mude para ResponseEntity<String>
         }
     }
+
 
     // Resetar Senha do usuário
     @PostMapping("/resetSenha")
@@ -114,6 +141,4 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha na autenticação 2FA.");
         }
     }
-
 }
-

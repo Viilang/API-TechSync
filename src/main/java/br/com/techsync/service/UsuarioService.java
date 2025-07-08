@@ -1,3 +1,4 @@
+// src/main/java/br/com/techsync/service/UsuarioService.java
 package br.com.techsync.service;
 
 import br.com.techsync.models.Usuario;
@@ -22,7 +23,14 @@ public class UsuarioService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    public Usuario buscarUsuarioPorEmail(String email) {
+        return usuarioRepository.findByEmail(email).orElse(null);
+    }
+
     public Usuario criarUsuario(Usuario usuario) {
+        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email já cadastrado. Por favor, utilize outro.");
+        }
         String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
         usuario.setSenha(senhaCriptografada);
         return usuarioRepository.save(usuario);
@@ -34,7 +42,14 @@ public class UsuarioService {
             Usuario u = usuarioExistente.get();
             u.setNome(usuario.getNome());
             u.setEmail(usuario.getEmail());
+            // --- NOVOS CAMPOS PARA EDIÇÃO ---
+            u.setTelefone(usuario.getTelefone());
+            u.setCpf(usuario.getCpf());
+            // --- FIM DOS NOVOS CAMPOS ---
 
+            // A senha não deve ser atualizada aqui, a menos que seja um endpoint de "mudar senha"
+            // Se o frontend enviar uma senha e você quiser que ela seja ignorada para edição de dados pessoais,
+            // ou se for um campo de senha nulo/vazio, a lógica abaixo está correta.
             if (usuario.getSenha() != null && !usuario.getSenha().isBlank()) {
                 String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
                 u.setSenha(senhaCriptografada);
@@ -42,7 +57,7 @@ public class UsuarioService {
 
             return usuarioRepository.save(u);
         }
-        return null;
+        return null; // Retorna null se o usuário não for encontrado
     }
 
     public List<Usuario> listarUsuarios() {
@@ -61,7 +76,6 @@ public class UsuarioService {
         return usuarioRepository.findById(id).orElse(null);
     }
 
-
     public String loginComJwt(String email, String senha) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(email);
 
@@ -74,7 +88,6 @@ public class UsuarioService {
                 return jwtUtil.gerarToken(email);
             }
         }
-
         return null;
     }
 
@@ -119,7 +132,7 @@ public class UsuarioService {
             boolean codigoValido = codigo2FA.equals(usuario.getCodigo2FA());
 
             return senhaValida && codigoValido;
-            }
+        }
         return false;
     }
 }

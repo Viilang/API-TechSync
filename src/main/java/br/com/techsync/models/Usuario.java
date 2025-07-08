@@ -24,6 +24,12 @@ public class Usuario {
     @Column
     private String codigo2FA;
 
+    @Column(length = 15) // Ex: (XX) XXXXX-XXXX
+    private String telefone;
+
+    @Column(length = 14, unique = true) // Ex: XXX.XXX.XXX-XX
+    private String cpf;
+
     // Construtores, Getters e Setters
 
     public Usuario() {}
@@ -69,6 +75,22 @@ public class Usuario {
     public String getCodigo2FA() {return codigo2FA;}
 
     public void setCodigo2FA(String codigo2FA) {this.codigo2FA = codigo2FA;}
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
 
     //Método para obter dados do usuário
     public String getDados() {

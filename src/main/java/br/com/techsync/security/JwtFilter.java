@@ -14,12 +14,19 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    // Usar a mesma chave secreta que no arquivo JwtUtil
     private final String chaveSecreta = "MinhaChaveSuperSecreta1234567890123456";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        // --- ADIÇÃO AQUI: Permitir requisições OPTIONS ---
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+            response.setStatus(HttpServletResponse.SC_OK); // Retorna 200 OK para a requisição OPTIONS
+            filterChain.doFilter(request, response); // Permite que a requisição siga
+            return; // Encerra a execução do filtro para OPTIONS
+        }
+        // --- FIM DA ADIÇÃO ---
 
         String authorizationHeader = request.getHeader("Authorization");
 
@@ -27,7 +34,6 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authorizationHeader.substring(7); // Remove o "Bearer "
 
             try {
-                // Valida o token
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(chaveSecreta.getBytes())
                         .build()
@@ -51,7 +57,6 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        // Continua a requisição
         filterChain.doFilter(request, response);
     }
 
@@ -59,17 +64,17 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
+        // Login não precisa de token
         if (path.equals("/api/usuarios/login")) {
             return false;
         }
 
-
+        // Cadastro (POST) não precisa de token
         if (path.equals("/api/usuarios") && method.equals("POST")) {
             return false;
         }
 
+        // Todos os outros endpoints /api/usuarios exigem token
         return path.startsWith("/api/usuarios");
     }
-
 }
-
