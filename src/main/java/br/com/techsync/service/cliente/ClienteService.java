@@ -40,10 +40,6 @@ public class ClienteService {
             return null;
         }
 
-        if (cliente.getId() == null) {
-            return null;
-        }
-
         for (Responsavel r : cliente.getResponsaveis()) {
             r.setCliente(cliente);
         }

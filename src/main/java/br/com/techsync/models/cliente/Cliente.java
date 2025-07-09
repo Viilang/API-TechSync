@@ -1,6 +1,7 @@
 package br.com.techsync.models.cliente;
 
 import br.com.techsync.enums.Status;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class Cliente {
     private String observacao;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Responsavel> responsaveis = new ArrayList<>();
 
     // Construtor
@@ -77,7 +79,7 @@ public class Cliente {
         return cnpj_cpf;
     }
 
-    public void setCnpj_cpf(String cnpj) {
+    public void setCnpj_cpf(String cnpj_cpf) {
         this.cnpj_cpf = cnpj_cpf;
     }
 

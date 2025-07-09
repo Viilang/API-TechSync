@@ -1,5 +1,6 @@
 package br.com.techsync.models.cliente;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -24,8 +25,8 @@ public class Responsavel {
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
+    @JsonBackReference
     private Cliente cliente;
-
 
     // Constructor
     public Responsavel() {}
