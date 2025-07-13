@@ -24,10 +24,10 @@ public class Usuario {
     @Column
     private String codigo2FA;
 
-    @Column(length = 15) // Ex: (XX) XXXXX-XXXX
+    @Column(length = 15)
     private String telefone;
 
-    @Column(length = 14, unique = true) // Ex: XXX.XXX.XXX-XX
+    @Column(length = 14, unique = true)
     private String cpf;
 
     // Construtores, Getters e Setters
