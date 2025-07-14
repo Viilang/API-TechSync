@@ -21,6 +21,7 @@ public class Orcamento {
     @JsonManagedReference
     private List<Servicos> servicos = new ArrayList<>();
 
+    @Column
     private double valor;
 
     // Construtores
@@ -61,18 +62,5 @@ public class Orcamento {
         this.valor = servicos.stream()
                 .mapToDouble(s -> s.getValor() * s.getQuantidade())
                 .sum();
-    }
-
-    public short exportPDF() {
-        // Implementar lógica de exportação PDF
-        return 1; // Sucesso
-    }
-
-    public void fechar(boolean decisao) {
-        // Implementar lógica de fechamento do orçamento
-    }
-
-    public boolean buscarDados() {
-        return this.id > 0;
     }
 }
