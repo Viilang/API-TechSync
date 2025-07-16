@@ -43,22 +43,4 @@ public class Servicos {
 
     public Orcamento getOrcamento() { return orcamento; }
     public void setOrcamento(Orcamento orcamento) { this.orcamento = orcamento; }
-
-    // Regras de Négocio
-    public void setProperties(String descricao, double valor) {
-        this.descricao = descricao;
-        this.valor = valor;
-    }
-
-    public boolean buscarDados() {
-        return this.id > 0;
-    }
-
-    public void salvar() {
-        // Lógica será implementada no service
-    }
-
-    public void listarTodos() {
-        // Lógica será implementada no service
-    }
 }

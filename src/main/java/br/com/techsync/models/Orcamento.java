@@ -17,7 +17,7 @@ public class Orcamento {
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Servicos> servicos = new ArrayList<>();
 
@@ -45,20 +45,8 @@ public class Orcamento {
     public double getValor() { return valor; }
     public void setValor(double valor) { this.valor = valor; }
 
-    // Regras de Negócio
-    public void addServico(Servicos servico) {
-        servicos.add(servico);
-        servico.setOrcamento(this);
-        calcularValorTotal();
-    }
-
-    public void removerServico(Servicos servico) {
-        servicos.remove(servico);
-        servico.setOrcamento(null);
-        calcularValorTotal();
-    }
-
-    private void calcularValorTotal() {
+    // Métodos
+    public void calcularValorTotal() {
         this.valor = servicos.stream()
                 .mapToDouble(s -> s.getValor() * s.getQuantidade())
                 .sum();
