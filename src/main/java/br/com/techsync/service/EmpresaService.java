@@ -51,4 +51,11 @@ public class EmpresaService {
         }
         return false;
     }
+
+    // --- MÉTODO ADICIONADO AQUI ---
+    public Empresa encontrarPorUsuarioId(int usuarioId) {
+        return empresaRepository.findByUsuarioId(usuarioId)
+                .orElse(null);
+    }
+    // ---------------------------------
 }

@@ -8,6 +8,8 @@ public class Empresa {
 
     @Id
     @Column(name = "id")
+    // É uma boa prática usar @GeneratedValue para que o banco de dados cuide do ID,
+    // mas mantive como está para minimizar as alterações.
     private int id;
 
     @Column(name = "name", nullable = false)
@@ -26,11 +28,25 @@ public class Empresa {
     @Column(name = "timezone", nullable = false, length = 5)
     private String timezone;
 
-    // Construtores
+    // --- MUDANÇA ADICIONADA AQUI ---
+    @OneToOne
+    @JoinColumn(name = "usuario_id") // Garanta que o nome da coluna no seu banco seja "usuario_id"
+    private Usuario usuario;
+    // ---------------------------------
 
+    // Construtores
     public Empresa() {}
 
     // Getters e Setters
+
+    // Getter e Setter para o novo campo Usuario
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
     public String getNome() {
         return nome;
@@ -79,7 +95,4 @@ public class Empresa {
     public void setId(int id) {
         this.id = id;
     }
-
-
 }
-

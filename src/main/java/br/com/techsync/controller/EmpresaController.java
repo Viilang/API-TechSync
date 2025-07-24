@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/empresa")
 public class EmpresaController {
@@ -31,24 +30,35 @@ public class EmpresaController {
         return empresaEditado != null ? ResponseEntity.ok(empresaEditado) : ResponseEntity.notFound().build();
     }
 
-    // Listar empresa
+    // Listar empresa pelo SEU PRÓPRIO ID
     @GetMapping("/{id}")
     public ResponseEntity<Empresa> listarEmpresa(@PathVariable int id) {
         Empresa empresa = empresaService.listarEmpresa(id);
         return ResponseEntity.ok(empresa);
     }
 
-    // Listar empresa
+    // --- ENDPOINT ADICIONADO AQUI ---
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<Empresa> getEmpresaPorUsuarioId(@PathVariable int usuarioId) {
+        Empresa empresa = empresaService.encontrarPorUsuarioId(usuarioId);
+        if (empresa != null) {
+            return ResponseEntity.ok(empresa);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    // ---------------------------------
+
+    // Listar todas as empresas
     @GetMapping
     public ResponseEntity<List<Empresa>> listarEmpresas() {
         List<Empresa> empresa = empresaService.listarEmpresas();
         return ResponseEntity.ok(empresa);
     }
 
-    // Excluir um usuário
+    // Excluir uma empresa
     @DeleteMapping("/{id}")
     public ResponseEntity<String> excluirEmpresa(@PathVariable int id) {
         return empresaService.excluirEmpresa(id) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 }
-
